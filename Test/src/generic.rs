@@ -160,7 +160,7 @@ impl<T: Hash + Eq + Debug> Muted<T>{
         if real_index.is_some() && !self.data.is_empty(){
             let ptr = match &self.data[real_index.unwrap()] {
                 Data::Rp(p) => p,
-                Data::Val(v) => return None,
+                Data::Val(_v) => return None,
             };
             if let Some(held) = self.r_hold.remove(&Data::Rp(*ptr)) {
                 let boxed: Box<Vec<Data<T>>> = ManuallyDrop::into_inner(match held {
