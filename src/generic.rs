@@ -17,6 +17,21 @@ pub struct Muted<T: Hash + Eq + Debug> {
     prefix_vec: (Vec<usize>, usize),
     rc: usize,
 }
+
+#[macro_export]
+macro_rules! muted {
+    () => {
+        crate::generic::Muted::new(vec![])
+    };
+    ($($element:expr),+) => {{
+        let mut x = Vec::new();
+        $(x.push(Data::Val($element));)+
+        let mut y = $crate::generic::Muted::new(x);
+        y
+    }};
+}
+
+
 impl<T: Eq + Hash + Debug + Clone> Iterator for Muted<T>{
     type Item = T;
     fn next(&mut self) -> Option<Self::Item> {
