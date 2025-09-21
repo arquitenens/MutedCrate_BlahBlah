@@ -26,9 +26,12 @@ macro_rules! muted {
     ($($element:expr),+) => {{
         let mut x = Vec::new();
         $(x.push(Data::Val($element));)+
-        let mut y = $crate::generic::Muted::new(x);
+        let mut y = $crate::generic::Muted::new_no_conv(x);
         y
     }};
+    ($element:expr; $count:expr) => {{
+        $crate::Muted::new(vec![$element; $count])
+    }}
 }
 
 
@@ -104,6 +107,15 @@ impl<T: Hash + Eq + Debug> Muted<T>{
         let len = vec.len();
         return Muted{
             data: Box::new(Self::muted_from(vec)),
+            r_hold: HashMap::new(),
+            prefix_vec: ((1..=len).collect(), len),
+            rc: 0
+        };
+    }
+    pub fn new_no_conv(vec: Vec<Data<T>>) -> Self{
+        let len = vec.len();
+        return Muted{
+            data: Box::new(vec),
             r_hold: HashMap::new(),
             prefix_vec: ((1..=len).collect(), len),
             rc: 0
