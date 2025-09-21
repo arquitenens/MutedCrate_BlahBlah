@@ -47,6 +47,8 @@ impl<T: Eq + Hash + Debug> Drop for Muted<T>{
         }
         self.r_hold.clear();
         self.data.clear();
+        self.prefix_vec.0.clear();
+        self.prefix_vec.1 = 0;
     }
 }
 
