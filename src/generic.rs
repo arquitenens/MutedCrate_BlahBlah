@@ -240,10 +240,10 @@ impl<T: Hash + Eq + Debug> Muted<T>{
         }
         return Some(());
     }
-    pub fn read(&mut self, index: usize) -> Option<&T>{
+    pub fn read(&self, index: usize) -> Option<&T>{
         unsafe {
             if let Some(immutable) = self.get_raw_mut(index) {
-                return Some(&*immutable)
+                return Some(immutable.as_ref())
             }else {
                 return None;
             }
@@ -252,21 +252,22 @@ impl<T: Hash + Eq + Debug> Muted<T>{
     pub fn write(&mut self, index: usize, val: T) -> Option<()>{
         unsafe {
             if let Some(mutable) = self.get_raw_mut(index) {
-                *mutable = val;
+                mutable.replace(val);
+                
                 return Some(());
             }else {
                 return None;
             }
         }
     }
-    pub unsafe fn get_raw_mut(&mut self, index: usize) -> Option<&mut T>{
+    pub unsafe fn get_raw_mut(&self, index: usize) -> Option<NonNull<T>>{
         let target = index + 1;
         let rough_index = self.prefix_vec.0.partition_point(|&x| x < target);
         if rough_index >= self.data.len(){
             panic!("index out of bounds");
         }
-        return match &mut self.data[rough_index] {
-            Data::Val(v) => Some(&mut *v),
+        return match &self.data[rough_index] {
+            Data::Val(v) => Some(NonNull::from(v)),
             Data::Rp(p) => {
                 if let Some(pointer) = p{
                     unsafe {
@@ -279,7 +280,7 @@ impl<T: Hash + Eq + Debug> Muted<T>{
                         let len = vec.len();
                         match vec.get_mut(offset) {
                             None => panic!("read or write failed, index is out of bounds, index is {}, len is: {}", offset, len),
-                            Some(Data::Val(v)) => Some(v),
+                            Some(Data::Val(v)) => Some(NonNull::from(v)),
                             Some(_) => unreachable!(),
                         }
                     }
