@@ -33,7 +33,7 @@ fn main() {
         //why not result you might ask? because i dont wanna.
         //if you want something mutable use get_raw_mut
         let m = unsafe { muted.get_raw_mut(1) };
-        *m.unwrap() = 10;
+        unsafe {m.unwrap().replace(10)};
         println!("{}", muted); // [67, 10, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5]
         //for obvious reasons its an unsafe function... but at least its an option type, right?
 
